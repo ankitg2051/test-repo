@@ -25,6 +25,12 @@ vn = {
     "location"       = "East Asia"
     "resource_group" = "ankit-rg"
   }
+  "vnet2" = {
+    "name"           = "vnet2"
+    "address_space"  = ["10,0.0.0/16"]
+    "location"       = "East Europe"
+    "resource_group" = "ankit-rg2"
+}
 }
 
 subnets = {
