@@ -1,3 +1,7 @@
+#Just to check if the file is being read correctly
+# This file contains the variables for the Parent Module in Terraform
+
+
 resource_group = {
   "rg1" = {
     "name"     = "ankit-rg"
