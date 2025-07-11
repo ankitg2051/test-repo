@@ -3,10 +3,6 @@ resource_group = {
     "name"     = "ankit-rg"
     "location" = "East Asia"
   }
-  "rg2" = {
-    "name"     = "ankit-rg2"
-    "location" = "East Asia"
-  }
 }
 storage = {
   "store1" = {
