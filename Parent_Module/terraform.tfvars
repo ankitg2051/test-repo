@@ -1,6 +1,6 @@
 resource_group = {
   "rg1" = {
-    "name"     = "ankit-rg"
+    "name"     = "ankit-rg1"
     "location" = "East Asia"
   }
   "rg2" = {
