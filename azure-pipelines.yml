@@ -7,7 +7,7 @@ trigger:
 - none
 
 pool:
-  vmImage: new_agent
+  vmImage: oct_agent
 
 steps:
 - script: echo Hello, world!
