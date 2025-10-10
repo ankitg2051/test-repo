@@ -13,7 +13,7 @@ steps:
   inputs:
     provider: 'azurerm'
     command: 'init'
-    workingDirectory: '$(System.DefaultWorkingDirectory)\Parent_Module'
+    workingDirectory: '$(System.DefaultWorkingDirectory)/Parent_Module'
     backendServiceArm: 'oct_WIF'
     backendAzureRmStorageAccountName: 'store10110'
     backendAzureRmContainerName: 'octcont'
