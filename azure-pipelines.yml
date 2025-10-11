@@ -10,9 +10,11 @@ variables:
 
 steps:
 - task: TerraformInstaller@1
+  displayName: terraform_install
   inputs:
     terraformVersion: 'latest'
 - task: TerraformTask@5
+  displayName: terraform_init
   inputs:
     provider: 'azurerm'
     command: 'init'
@@ -22,12 +24,14 @@ steps:
     backendAzureRmContainerName: 'octcont'
     backendAzureRmKey: 'backup.tfstate'
 - task: TerraformTask@5
+  displayName: terraform_validate
   inputs:
     provider: 'azurerm'
     command: 'validate'
     workingDirectory: $(path)
 
 - task: TerraformTask@5
+  displayName: terraform_plan
   inputs:
     provider: 'azurerm'
     command: 'plan'
