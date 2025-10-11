@@ -5,6 +5,9 @@
 
 trigger: none
 pool: new_agent
+variables:
+  path: '$(System.DefaultWorkingDirectory)/Parent_Module'
+
 steps:
 - task: TerraformInstaller@1
   inputs:
@@ -13,7 +16,7 @@ steps:
   inputs:
     provider: 'azurerm'
     command: 'init'
-    workingDirectory: '$(System.DefaultWorkingDirectory)/Parent_Module'
+    workingDirectory: $(path)
     backendServiceArm: 'oct_WIF'
     backendAzureRmStorageAccountName: 'store10110'
     backendAzureRmContainerName: 'octcont'
@@ -22,11 +25,11 @@ steps:
   inputs:
     provider: 'azurerm'
     command: 'validate'
-    workingDirectory: '$(System.DefaultWorkingDirectory)/Parent_Module'
+    workingDirectory: $(path)
 
 - task: TerraformTask@5
   inputs:
     provider: 'azurerm'
     command: 'plan'
-    workingDirectory: '$(System.DefaultWorkingDirectory)/Parent_Module'
+    workingDirectory: $(path)
 
