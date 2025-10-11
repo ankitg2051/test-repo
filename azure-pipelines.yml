@@ -30,11 +30,10 @@ parameters:
 variables:
   path: '$(System.DefaultWorkingDirectory)/Parent_Module'
 
-stages:
-
 # -------------------------------
 # Stage 1 - Install
 # -------------------------------
+stages:
 - stage: Stage_Install
   displayName: "Terraform Install"
   condition: eq('${{ parameters.run_install }}', true)
@@ -51,8 +50,8 @@ stages:
 # -------------------------------
 - stage: Stage_Init
   displayName: "Terraform Init"
+  dependsOn: Stage_Install
   condition: eq('${{ parameters.run_init }}', true)
-  dependsOn: []
   jobs:
   - job: Terraform_Init
     steps:
@@ -72,8 +71,8 @@ stages:
 # -------------------------------
 - stage: Stage_Validate
   displayName: "Terraform Validate"
+  dependsOn: Stage_Init
   condition: eq('${{ parameters.run_validate }}', true)
-  dependsOn: []
   jobs:
   - job: Terraform_Validate
     steps:
@@ -90,8 +89,8 @@ stages:
 # -------------------------------
 - stage: Stage_Plan
   displayName: "Terraform Plan"
+  dependsOn: Stage_Validate
   condition: eq('${{ parameters.run_plan }}', true)
-  dependsOn: []
   jobs:
   - job: Terraform_Plan
     steps:
@@ -108,8 +107,8 @@ stages:
 # -------------------------------
 - stage: Stage_Apply
   displayName: "Terraform Apply"
+  dependsOn: Stage_Plan
   condition: eq('${{ parameters.run_apply }}', true)
-  dependsOn: []
   jobs:
   - job: Terraform_Apply
     steps:
