@@ -39,3 +39,11 @@ steps:
     workingDirectory: $(path)
     environmentServiceNameAzureRM: 'oct_WIF'
 
+- task: TerraformTask@5
+  displayName: terraform_apply
+  inputs:
+    provider: 'azurerm'
+    command: 'apply'
+    commandOptions: '--auto-approve'
+    workingDirectory: $(path)
+    environmentServiceNameAzureRM: 'oct_WIF'
