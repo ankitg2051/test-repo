@@ -10,12 +10,3 @@ resource "azurerm_storage_account" "Storage" {
 variable "store" {
   type = any
 }
-
-resource "azurerm_storage_account" "Storage1" {
-    for_each = var.store
-    name = each.value.name
-    location = each.value.location
-    resource_group_name = each.value.resource_group
-    account_tier = each.value.account_tier
-    account_replication_type = each.value.account_replication_type
-}
