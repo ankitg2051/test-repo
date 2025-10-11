@@ -1,49 +1,123 @@
-# Starter pipeline
-# Start with a minimal pipeline that you can customize to build and deploy your code.
-# Add steps that build, run tests, deploy, and more:
-# https://aka.ms/yaml
-
 trigger: none
 pool: new_agent
+
+parameters:
+  - name: run_install
+    displayName: "Run Terraform Install?"
+    type: boolean
+    default: false
+
+  - name: run_init
+    displayName: "Run Terraform Init?"
+    type: boolean
+    default: false
+
+  - name: run_validate
+    displayName: "Run Terraform Validate?"
+    type: boolean
+    default: false
+
+  - name: run_plan
+    displayName: "Run Terraform Plan?"
+    type: boolean
+    default: false
+
+  - name: run_apply
+    displayName: "Run Terraform Apply?"
+    type: boolean
+    default: false
+
 variables:
   path: '$(System.DefaultWorkingDirectory)/Parent_Module'
 
-steps:
-- task: TerraformInstaller@1
-  displayName: terraform_install
-  inputs:
-    terraformVersion: 'latest'
-- task: TerraformTask@5
-  displayName: terraform_init
-  inputs:
-    provider: 'azurerm'
-    command: 'init'
-    workingDirectory: $(path)
-    backendServiceArm: 'oct_WIF'
-    backendAzureRmStorageAccountName: 'store10110'
-    backendAzureRmContainerName: 'octcont'
-    backendAzureRmKey: 'backup.tfstate'
-- task: TerraformTask@5
-  displayName: terraform_validate
-  inputs:
-    provider: 'azurerm'
-    command: 'validate'
-    workingDirectory: $(path)
-    environmentServiceNameAzureRM: 'oct_WIF'
+stages:
 
-- task: TerraformTask@5
-  displayName: terraform_plan
-  inputs:
-    provider: 'azurerm'
-    command: 'plan'
-    workingDirectory: $(path)
-    environmentServiceNameAzureRM: 'oct_WIF'
+# -------------------------------
+# Stage 1 - Install
+# -------------------------------
+- stage: Stage_Install
+  displayName: "Terraform Install"
+  condition: eq('${{ parameters.run_install }}', true)
+  jobs:
+  - job: Terraform_Install
+    steps:
+      - task: TerraformInstaller@1
+        displayName: terraform_install
+        inputs:
+          terraformVersion: 'latest'
 
-- task: TerraformTask@5
-  displayName: terraform_apply
-  inputs:
-    provider: 'azurerm'
-    command: 'apply'
-    commandOptions: '--auto-approve'
-    workingDirectory: $(path)
-    environmentServiceNameAzureRM: 'oct_WIF'
+# -------------------------------
+# Stage 2 - Init
+# -------------------------------
+- stage: Stage_Init
+  displayName: "Terraform Init"
+  condition: eq('${{ parameters.run_init }}', true)
+  dependsOn: []
+  jobs:
+  - job: Terraform_Init
+    steps:
+      - task: TerraformTask@5
+        displayName: terraform_init
+        inputs:
+          provider: 'azurerm'
+          command: 'init'
+          workingDirectory: $(path)
+          backendServiceArm: 'oct_WIF'
+          backendAzureRmStorageAccountName: 'store10110'
+          backendAzureRmContainerName: 'octcont'
+          backendAzureRmKey: 'backup.tfstate'
+
+# -------------------------------
+# Stage 3 - Validate
+# -------------------------------
+- stage: Stage_Validate
+  displayName: "Terraform Validate"
+  condition: eq('${{ parameters.run_validate }}', true)
+  dependsOn: []
+  jobs:
+  - job: Terraform_Validate
+    steps:
+      - task: TerraformTask@5
+        displayName: terraform_validate
+        inputs:
+          provider: 'azurerm'
+          command: 'validate'
+          workingDirectory: $(path)
+          environmentServiceNameAzureRM: 'oct_WIF'
+
+# -------------------------------
+# Stage 4 - Plan
+# -------------------------------
+- stage: Stage_Plan
+  displayName: "Terraform Plan"
+  condition: eq('${{ parameters.run_plan }}', true)
+  dependsOn: []
+  jobs:
+  - job: Terraform_Plan
+    steps:
+      - task: TerraformTask@5
+        displayName: terraform_plan
+        inputs:
+          provider: 'azurerm'
+          command: 'plan'
+          workingDirectory: $(path)
+          environmentServiceNameAzureRM: 'oct_WIF'
+
+# -------------------------------
+# Stage 5 - Apply
+# -------------------------------
+- stage: Stage_Apply
+  displayName: "Terraform Apply"
+  condition: eq('${{ parameters.run_apply }}', true)
+  dependsOn: []
+  jobs:
+  - job: Terraform_Apply
+    steps:
+      - task: TerraformTask@5
+        displayName: terraform_apply
+        inputs:
+          provider: 'azurerm'
+          command: 'apply'
+          commandOptions: '--auto-approve'
+          workingDirectory: $(path)
+          environmentServiceNameAzureRM: 'oct_WIF'
