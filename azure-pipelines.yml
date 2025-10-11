@@ -29,6 +29,7 @@ steps:
     provider: 'azurerm'
     command: 'validate'
     workingDirectory: $(path)
+    environmentServiceNameAzureRM: 'oct_WIF'
 
 - task: TerraformTask@5
   displayName: terraform_plan
@@ -36,4 +37,5 @@ steps:
     provider: 'azurerm'
     command: 'plan'
     workingDirectory: $(path)
+    environmentServiceNameAzureRM: 'oct_WIF'
 
