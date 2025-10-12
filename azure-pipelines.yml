@@ -38,3 +38,11 @@ steps:
     workingDirectory: '$(System.DefaultWorkingDirectory)/Parent_Module'
     commandOptions: '--auto-approve'
     environmentServiceNameAzureRM: 'oct_new'
+
+- task: TerraformTask@5
+  displayName: terraform_destroy
+  inputs:
+    provider: 'azurerm'
+    command: 'destroy'
+    workingDirectory: '$(System.DefaultWorkingDirectory)/Parent_Module'
+    environmentServiceNameAzureRM: 'oct_new'
