@@ -5,6 +5,7 @@ steps:
   inputs:
     terraformVersion: 'latest'
 - task: TerraformTask@5
+  displayName: terraform_init
   inputs:
     provider: 'azurerm'
     command: 'init'
@@ -15,15 +16,25 @@ steps:
     backendAzureRmKey: 'backend.tfstate'
 
 - task: TerraformTask@5
+  displayName: terraform_validate
   inputs:
     provider: 'azurerm'
     command: 'validate'
     workingDirectory: '$(System.DefaultWorkingDirectory)/Parent_Module'
 
 - task: TerraformTask@5
+  displayName: terraform_plan
   inputs:
     provider: 'azurerm'
     command: 'plan'
     workingDirectory: '$(System.DefaultWorkingDirectory)/Parent_Module'
     environmentServiceNameAzureRM: 'oct_new'
 
+- task: TerraformTask@5
+  displayName: terraform_apply
+  inputs:
+    provider: 'azurerm'
+    command: 'apply'
+    workingDirectory: '$(System.DefaultWorkingDirectory)/Parent_Module'
+    commandOptions: '--auto-approve'
+    environmentServiceNameAzureRM: 'oct_new'
