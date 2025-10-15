@@ -1,48 +1,73 @@
 trigger: none
+
 pool: new_agent
-steps:
-- task: TerraformInstaller@1
-  inputs:
-    terraformVersion: 'latest'
-- task: TerraformTask@5
-  displayName: terraform_init
-  inputs:
-    provider: 'azurerm'
-    command: 'init'
-    workingDirectory: '$(System.DefaultWorkingDirectory)/Parent_Module'
-    backendServiceArm: 'oct_new'
-    backendAzureRmStorageAccountName: 'store101011'
-    backendAzureRmContainerName: 'blobcont'
-    backendAzureRmKey: 'backend.tfstate'
 
-- task: TerraformTask@5
-  displayName: terraform_validate
-  inputs:
-    provider: 'azurerm'
-    command: 'validate'
-    workingDirectory: '$(System.DefaultWorkingDirectory)/Parent_Module'
+stages:
+  - stage: Install_Terraform
+    displayName: "Stage 1 - Install Terraform"
+    jobs:
+      - job: Install
+        steps:
+          - task: TerraformInstaller@1
+            inputs:
+              terraformVersion: 'latest'
 
-- task: TerraformTask@5
-  displayName: terraform_plan
-  inputs:
-    provider: 'azurerm'
-    command: 'plan'
-    workingDirectory: '$(System.DefaultWorkingDirectory)/Parent_Module'
-    environmentServiceNameAzureRM: 'oct_new'
+  - stage: Terraform_Init
+    displayName: "Stage 2 - Terraform Init"
+    dependsOn: Install_Terraform
+    jobs:
+      - job: Init
+        steps:
+          - task: TerraformTask@5
+            displayName: "Terraform Init"
+            inputs:
+              provider: 'azurerm'
+              command: 'init'
+              workingDirectory: '$(System.DefaultWorkingDirectory)/Parent_Module'
+              backendServiceArm: 'oct_new'
+              backendAzureRmStorageAccountName: 'store101011'
+              backendAzureRmContainerName: 'blobcont'
+              backendAzureRmKey: 'backend.tfstate'
 
-- task: TerraformTask@5
-  displayName: terraform_apply
-  inputs:
-    provider: 'azurerm'
-    command: 'apply'
-    workingDirectory: '$(System.DefaultWorkingDirectory)/Parent_Module'
-    commandOptions: '--auto-approve'
-    environmentServiceNameAzureRM: 'oct_new'
+  - stage: Terraform_Validate
+    displayName: "Stage 3 - Terraform Validate"
+    dependsOn: Terraform_Init
+    jobs:
+      - job: Validate
+        steps:
+          - task: TerraformTask@5
+            displayName: "Terraform Validate"
+            inputs:
+              provider: 'azurerm'
+              command: 'validate'
+              workingDirectory: '$(System.DefaultWorkingDirectory)/Parent_Module'
 
-- task: TerraformTask@5
-  displayName: terraform_destroy
-  inputs:
-    provider: 'azurerm'
-    command: 'destroy'
-    workingDirectory: '$(System.DefaultWorkingDirectory)/Parent_Module'
-    environmentServiceNameAzureRM: 'oct_new'
+  - stage: Terraform_Plan
+    displayName: "Stage 4 - Terraform Plan"
+    dependsOn: Terraform_Validate
+    jobs:
+      - job: Plan
+        steps:
+          - task: TerraformTask@5
+            displayName: "Terraform Plan"
+            inputs:
+              provider: 'azurerm'
+              command: 'plan'
+              workingDirectory: '$(System.DefaultWorkingDirectory)/Parent_Module'
+              environmentServiceNameAzureRM: 'oct_new'
+
+  - stage: Terraform_Apply
+    displayName: "Stage 5 - Terraform Apply"
+    dependsOn: Terraform_Plan
+    condition: succeeded()
+    jobs:
+      - job: Apply
+        steps:
+          - task: TerraformTask@5
+            displayName: "Terraform Apply"
+            inputs:
+              provider: 'azurerm'
+              command: 'apply'
+              workingDirectory: '$(System.DefaultWorkingDirectory)/Parent_Module'
+              commandOptions: '--auto-approve'
+              environmentServiceNameAzureRM: 'oct_new'
