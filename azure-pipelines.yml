@@ -56,18 +56,3 @@ stages:
               workingDirectory: '$(System.DefaultWorkingDirectory)/Parent_Module'
               environmentServiceNameAzureRM: 'oct_new'
 
-  - stage: Terraform_Apply
-    displayName: "Stage 5 - Terraform Apply"
-    dependsOn: Terraform_Plan
-    condition: succeeded()
-    jobs:
-      - job: Apply
-        steps:
-          - task: TerraformTask@5
-            displayName: "Terraform Apply"
-            inputs:
-              provider: 'azurerm'
-              command: 'apply'
-              workingDirectory: '$(System.DefaultWorkingDirectory)/Parent_Module'
-              commandOptions: '--auto-approve'
-              environmentServiceNameAzureRM: 'oct_new'
