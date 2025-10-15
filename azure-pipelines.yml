@@ -12,11 +12,11 @@ stages:
             inputs:
               terraformVersion: 'latest'
 
-  - stage: Terraform_Init_Validate
-    displayName: "Stage 2 - Terraform Init + Validate"
+  - stage: Terraform_Init
+    displayName: "Stage 2 - Terraform Init"
     dependsOn: Install_Terraform
     jobs:
-      - job: InitValidate
+      - job: Init
         steps:
           - task: TerraformTask@5
             displayName: "Terraform Init"
@@ -29,6 +29,12 @@ stages:
               backendAzureRmContainerName: 'blobcont'
               backendAzureRmKey: 'backend.tfstate'
 
+  - stage: Terraform_Validate
+    displayName: "Stage 3 - Terraform Validate"
+    dependsOn: Terraform_Init
+    jobs:
+      - job: Validate
+        steps:
           - task: TerraformTask@5
             displayName: "Terraform Validate"
             inputs:
@@ -37,8 +43,8 @@ stages:
               workingDirectory: '$(System.DefaultWorkingDirectory)/Parent_Module'
 
   - stage: Terraform_Plan
-    displayName: "Stage 3 - Terraform Plan"
-    dependsOn: Terraform_Init_Validate
+    displayName: "Stage 4 - Terraform Plan"
+    dependsOn: Terraform_Validate
     jobs:
       - job: Plan
         steps:
@@ -48,20 +54,4 @@ stages:
               provider: 'azurerm'
               command: 'plan'
               workingDirectory: '$(System.DefaultWorkingDirectory)/Parent_Module'
-              environmentServiceNameAzureRM: 'oct_new'
-
-  - stage: Terraform_Apply
-    displayName: "Stage 4 - Terraform Apply"
-    dependsOn: Terraform_Plan
-    condition: succeeded()
-    jobs:
-      - job: Apply
-        steps:
-          - task: TerraformTask@5
-            displayName: "Terraform Apply"
-            inputs:
-              provider: 'azurerm'
-              command: 'apply'
-              workingDirectory: '$(System.DefaultWorkingDirectory)/Parent_Module'
-              commandOptions: '--auto-approve'
               environmentServiceNameAzureRM: 'oct_new'
