@@ -28,16 +28,12 @@ stages:
               backendAzureRmStorageAccountName: 'store101011'
               backendAzureRmContainerName: 'blobcont'
               backendAzureRmKey: 'backend.tfstate'
-      - job: Validate
-        steps:
           - task: TerraformTask@5
             displayName: "Terraform Validate"
             inputs:
               provider: 'azurerm'
               command: 'validate'
               workingDirectory: '$(System.DefaultWorkingDirectory)/Parent_Module'
-      - job: Plan
-        steps:
           - task: TerraformTask@5
             displayName: "Terraform Plan"
             inputs:
