@@ -8,6 +8,7 @@ pool: new_agent
 
 variables:
   directory: '$(System.DefaultWorkingDirectory)/Parent_Module'
+  service_connection: $(service_connection)
 
 steps:
 - task: TerraformInstaller@1
@@ -21,7 +22,7 @@ steps:
     provider: 'azurerm'
     command: 'init'
     workingDirectory: $(directory)
-    backendServiceArm: 'oct_new'
+    backendServiceArm: $(service_connection)
     backendAzureRmStorageAccountName: 'store101011'
     backendAzureRmContainerName: 'blobcont'
     backendAzureRmKey: 'backend.tfstate'
@@ -39,4 +40,22 @@ steps:
     provider: 'azurerm'
     command: 'plan'
     workingDirectory: $(directory)
-    environmentServiceNameAzureRM: 'oct_new'
+    environmentServiceNameAzureRM: $(service_connection)
+
+- task: ManualValidation@1
+  displayName: "Manual Approval Before Apply"
+  condition: eq(variables['Build.SourceBranch'], 'refs/heads/main')
+  inputs:
+    notifyUsers: 'ankitg.2051@gmail.com'
+    approvers: 'ankitg.2051@gmail.com'
+    instructions: 'Please review and approve before apply runs.'
+
+- task: TerraformTask@5
+  displayName: terraform_apply
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
+  inputs:
+    provider: 'azurerm'
+    command: 'apply'
+    workingDirectory: '$(System.DefaultWorkingDirectory)/Parent_Module'
+    commandOptions: '--auto-approve'
+    environmentServiceNameAzureRM:$(service_connection)
