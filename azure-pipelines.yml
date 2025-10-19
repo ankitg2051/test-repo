@@ -8,7 +8,7 @@ pool: new_agent
 
 variables:
   directory: '$(System.DefaultWorkingDirectory)/Parent_Module'
-  service_connection: $(service_connection)
+  service_connection: 'oct_new'
 
 steps:
 - task: TerraformInstaller@1
