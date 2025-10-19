@@ -1,43 +1,14 @@
-trigger: none
+trigger:
+  branches:
+    include:
+      - main
+      - develop
 
 pool: new_agent
 
-stages:
-  - stage: Install_Terraform
-    displayName: "Stage 1 - Install Terraform"
-    jobs:
-      - job: Install
-        steps:
-          - task: TerraformInstaller@1
-            inputs:
-              terraformVersion: 'latest'
+steps:
+- task: TerraformInstaller@1
+  displayName: terraform install
+  inputs:
+    terraformVersion: 'latest'
 
-  - stage: Terraform_Init
-    displayName: "Stage 2 - Terraform Init"
-    dependsOn: Install_Terraform
-    jobs:
-      - job: Init
-        steps:
-          - task: TerraformTask@5
-            displayName: "Terraform Init"
-            inputs:
-              provider: 'azurerm'
-              command: 'init'
-              workingDirectory: '$(System.DefaultWorkingDirectory)/Parent_Module'
-              backendServiceArm: 'oct_new'
-              backendAzureRmStorageAccountName: 'store101011'
-              backendAzureRmContainerName: 'blobcont'
-              backendAzureRmKey: 'backend.tfstate'
-          - task: TerraformTask@5
-            displayName: "Terraform Validate"
-            inputs:
-              provider: 'azurerm'
-              command: 'validate'
-              workingDirectory: '$(System.DefaultWorkingDirectory)/Parent_Module'
-          - task: TerraformTask@5
-            displayName: "Terraform Plan"
-            inputs:
-              provider: 'azurerm'
-              command: 'plan'
-              workingDirectory: '$(System.DefaultWorkingDirectory)/Parent_Module'
-              environmentServiceNameAzureRM: 'oct_new'
