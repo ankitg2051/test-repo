@@ -27,12 +27,14 @@ steps:
     backendAzureRmKey: 'backend.tfstate'
 
 - task: TerraformTask@5
+  displayName: terraform_Validate
   inputs:
     provider: 'azurerm'
     command: 'validate'
     workingDirectory: $(directory)
 
 - task: TerraformTask@5
+  displayName: terraform_Plan
   inputs:
     provider: 'azurerm'
     command: 'plan'
