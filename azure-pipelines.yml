@@ -42,13 +42,6 @@ steps:
     workingDirectory: $(directory)
     environmentServiceNameAzureRM: $(service_connection)
 
-- task: ManualValidation@1
-  displayName: "Manual Approval Before Apply"
-  condition: eq(variables['Build.SourceBranch'], 'refs/heads/main')
-  inputs:
-    notifyUsers: 'ankitg.2051@gmail.com'
-    approvers: 'ankitg.2051@gmail.com'
-    instructions: 'Please review and approve before apply runs.'
 
 - task: TerraformTask@5
   displayName: terraform_apply
@@ -58,4 +51,4 @@ steps:
     command: 'apply'
     workingDirectory: '$(System.DefaultWorkingDirectory)/Parent_Module'
     commandOptions: '--auto-approve'
-    environmentServiceNameAzureRM:$(service_connection)
+    environmentServiceNameAzureRM: $(service_connection)
