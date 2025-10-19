@@ -4,51 +4,74 @@ trigger:
       - main
       - develop
 
-pool: new_agent
-
 variables:
   directory: '$(System.DefaultWorkingDirectory)/Parent_Module'
   service_connection: 'oct_new'
 
-steps:
-- task: TerraformInstaller@1
-  displayName: terraform install
-  inputs:
-    terraformVersion: 'latest'
+jobs:
+# ---------- Job 1: Terraform Plan ----------
+- job: terraform_plan
+  displayName: "Terraform Plan"
+  pool: new_agent
+  steps:
+    - task: TerraformInstaller@1
+      displayName: terraform install
+      inputs:
+        terraformVersion: 'latest'
 
-- task: TerraformTask@5
-  displayName: terraform_init
-  inputs:
-    provider: 'azurerm'
-    command: 'init'
-    workingDirectory: $(directory)
-    backendServiceArm: $(service_connection)
-    backendAzureRmStorageAccountName: 'store101011'
-    backendAzureRmContainerName: 'blobcont'
-    backendAzureRmKey: 'backend.tfstate'
+    - task: TerraformTask@5
+      displayName: terraform_init
+      inputs:
+        provider: 'azurerm'
+        command: 'init'
+        workingDirectory: $(directory)
+        backendServiceArm: $(service_connection)
+        backendAzureRmStorageAccountName: 'store101011'
+        backendAzureRmContainerName: 'blobcont'
+        backendAzureRmKey: 'backend.tfstate'
 
-- task: TerraformTask@5
-  displayName: terraform_Validate
-  inputs:
-    provider: 'azurerm'
-    command: 'validate'
-    workingDirectory: $(directory)
+    - task: TerraformTask@5
+      displayName: terraform_validate
+      inputs:
+        provider: 'azurerm'
+        command: 'validate'
+        workingDirectory: $(directory)
 
-- task: TerraformTask@5
-  displayName: terraform_Plan
-  inputs:
-    provider: 'azurerm'
-    command: 'plan'
-    workingDirectory: $(directory)
-    environmentServiceNameAzureRM: $(service_connection)
+    - task: TerraformTask@5
+      displayName: terraform_plan
+      inputs:
+        provider: 'azurerm'
+        command: 'plan'
+        workingDirectory: $(directory)
+        environmentServiceNameAzureRM: $(service_connection)
+
+# ---------- Job 2: Manual Approval ----------
+- job: wait_for_approval
+  displayName: "Manual Approval"
+  dependsOn: terraform_plan
+  condition: succeeded()
+  pool: server
+  steps:
+    - task: ManualValidation@1
+      displayName: "Wait for manual approval before apply"
+      inputs:
+        notifyUsers: 'ankitg.2051@gmail.com'
+        approvers: 'ankitg.2051@gmail.com'
+        instructions: 'Please review the Terraform plan results before approving apply.'
 
 
-- task: TerraformTask@5
-  displayName: terraform_apply
+# ---------- Job 3: Terraform Apply ----------
+- job: terraform_apply
+  displayName: "Terraform Apply"
+  dependsOn: wait_for_approval
   condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
-  inputs:
-    provider: 'azurerm'
-    command: 'apply'
-    workingDirectory: '$(System.DefaultWorkingDirectory)/Parent_Module'
-    commandOptions: '--auto-approve'
-    environmentServiceNameAzureRM: $(service_connection)
+  pool: new_agent
+  steps:
+    - task: TerraformTask@5
+      displayName: terraform_apply
+      inputs:
+        provider: 'azurerm'
+        command: 'apply'
+        workingDirectory: $(directory)
+        commandOptions: '--auto-approve'
+        environmentServiceNameAzureRM: $(service_connection)
