@@ -6,7 +6,7 @@ resource_group = {
 }
 storage = {
   "store1" = {
-    "name"                     = "storeforblob2"
+    "name"                     = "storeforblob3"
     "location"                 = "East Asia"
     "resource_group"           = "ankit-rg10"
     "account_tier"             = "Standard"
@@ -16,7 +16,7 @@ storage = {
 
 vn = {
   "vnet1" = {
-    "name"           = "vnet5"
+    "name"           = "vnet7"
     "address_space"  = ["10.0.0.0/16"]
     "location"       = "East Asia"
     "resource_group" = "ankit-rg10"

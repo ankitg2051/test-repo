@@ -1,19 +1,54 @@
-# Starter pipeline
-# Start with a minimal pipeline that you can customize to build and deploy your code.
-# Add steps that build, run tests, deploy, and more:
-# https://aka.ms/yaml
-
 trigger:
-- main
+  branches:
+    include:
+      - main
+      - develop
 
-pool:
-  vmImage: ubuntu-latest
+pool: new_agent
+
+variables:
+  directory: '$(System.DefaultWorkingDirectory)/Parent_Module'
+  service_connection: 'oct_new'
 
 steps:
-- script: echo Hello, world!
-  displayName: 'Run a one-line script'
+- task: TerraformInstaller@1
+  displayName: terraform install
+  inputs:
+    terraformVersion: 'latest'
 
-- script: |
-    echo Add other tasks to build, test, and deploy your project.
-    echo See https://aka.ms/yaml
-  displayName: 'Run a multi-line script'
+- task: TerraformTask@5
+  displayName: terraform_init
+  inputs:
+    provider: 'azurerm'
+    command: 'init'
+    workingDirectory: $(directory)
+    backendServiceArm: $(service_connection)
+    backendAzureRmStorageAccountName: 'store101011'
+    backendAzureRmContainerName: 'blobcont'
+    backendAzureRmKey: 'backend.tfstate'
+
+- task: TerraformTask@5
+  displayName: terraform_Validate
+  inputs:
+    provider: 'azurerm'
+    command: 'validate'
+    workingDirectory: $(directory)
+
+- task: TerraformTask@5
+  displayName: terraform_Plan
+  inputs:
+    provider: 'azurerm'
+    command: 'plan'
+    workingDirectory: $(directory)
+    environmentServiceNameAzureRM: $(service_connection)
+
+
+- task: TerraformTask@5
+  displayName: terraform_apply
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
+  inputs:
+    provider: 'azurerm'
+    command: 'apply'
+    workingDirectory: '$(System.DefaultWorkingDirectory)/Parent_Module'
+    commandOptions: '--auto-approve'
+    environmentServiceNameAzureRM: $(service_connection)
