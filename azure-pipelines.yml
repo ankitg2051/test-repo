@@ -60,18 +60,18 @@ jobs:
         instructions: 'Please review the Terraform plan results before approving apply.'
 
 
-# # ---------- Job 3: Terraform Apply ----------
-# - job: terraform_apply
-#   displayName: "Terraform Apply"
-#   dependsOn: wait_for_approval
-#   condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
-#   pool: new_agent
-#   steps:
-#     - task: TerraformTask@5
-#       displayName: terraform_apply
-#       inputs:
-#         provider: 'azurerm'
-#         command: 'apply'
-#         workingDirectory: $(directory)
-#         commandOptions: '--auto-approve'
-#         environmentServiceNameAzureRM: $(service_connection)
+# ---------- Job 3: Terraform Apply ----------
+- job: terraform_apply
+  displayName: "Terraform Apply"
+  dependsOn: wait_for_approval
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
+  pool: new_agent
+  steps:
+    - task: TerraformTask@5
+      displayName: terraform_apply
+      inputs:
+        provider: 'azurerm'
+        command: 'apply'
+        workingDirectory: $(directory)
+        commandOptions: '--auto-approve'
+        environmentServiceNameAzureRM: $(service_connection)
